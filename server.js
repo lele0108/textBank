@@ -62,8 +62,19 @@ router.route('/test')
 
 function computeText(witRes, cb) {
 	if (witRes.outcomes) {
-		if (witRes.outcomes[0].intent = "greetings") {
+		if (witRes.outcomes[0].intent == "greetings") {
 			cb({ message: "Hello, what can I help you with?" });
+		}
+		else if (witRes.outcomes[0].intent == "checking_balance") {
+			var text = "Thanks for waiting. ";
+			capOneGetAccounts(function(res) {
+				console.log(res);
+				for (i = 0; i < res.length; i++) {
+					console.log("YESMAN");
+					text = text + "You have $" + res[i].balance.toString().substring(0, res[i].balance.toString().length - 2) + "." +  + res[i].balance.toString().substring(res[i].balance.toString().length - 2, res[i].balance.toString().length) + " in your " + res[i].type + " account. ";
+				}
+				cb({ message: text});
+			});
 		}
 	} else {
 		cb({ message: "Sorry I didn't quite get that, could you ask something different"});
@@ -73,8 +84,8 @@ function computeText(witRes, cb) {
 function capOneGetAccounts(cb) { //get all of customer's account based on customer ID
 	request('http://api.reimaginebanking.com/customers/' + CAPONE_CUSTOMER + '/accounts?key=' + CAPONE_KEY, function (error, response, body) {
 	  if (!error && response.statusCode == 200) { 
-	    console.log(JSON.parse(body));
-	    cb(JSON.parse(body));
+	    var ret = JSON.parse(body);
+	    cb(ret);
 	  }
 	})
 }
