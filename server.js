@@ -12,6 +12,13 @@ var ACCESS_TOKEN = "IBENYNTQT2C36HSUMM6Q5EGBPSJ7EUUU";
 var CAPONE_KEY = "5299a04263d592b885593d6d6d21aafc";
 var CAPONE_CUSTOMER = "55e94a6af8d8770528e60e54";
 var request = require('request');
+var PLAID = {
+	client_id: "55eb144bf1b303e8243a3fdc",
+	secret: "7f170be3c42b4200dea017c4c36d71",
+}
+var monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
@@ -55,7 +62,7 @@ router.route('/speech')
 
 router.route('/test') 
 	.get(function(req, res) {
-		capOneLocations(function(response) {
+		getPlaidInfo(function(response) {
 			res.json(response);
 		});
 	});
@@ -124,6 +131,39 @@ function computeText(witRes, cb) {
 				cb({ message: text});
 			}
 		}
+		else if (witRes.outcomes[0].intent == "expense_query") {
+			var text = "Thanks for waiting!";
+			var intent = "";
+			var query = witRes._text.toLowerCase();
+			if (query.indexOf("food") > -1) {
+				intent = "Food and Drink";
+			} else if (query.indexOf("coffee") > -1) {
+				intent = "Coffee Shop";
+			} else if (query.indexOf("venmo") > -1) {
+				intent = "Venmo";
+			} else if (query.indexOf("apple") > -1) {
+				intent = "Computers and Electronics";
+			}
+			getPlaidInfo(function(res) {
+				var match = [];
+				var transactions = res.transactions;
+				for (i = 0; i < transactions.length; i++) {
+					var cats = transactions[i].category;
+					console.log(cats);
+					if (cats) {
+						if (cats.indexOf(intent) > -1 ) {
+							match.push(transactions[i]);
+						}
+					}
+				}
+				text = text + " I've found " + match.length + " recent transactions."
+				for(j = 0; j < match.length; j++) {
+					var d = new Date(match[j].date);
+					text = text + " You spent $" + match[j].amount + " at " + match[j].name + " on " + monthNames[d.getMonth()] + " " + d.getDate() + ".";
+				}
+				cb({ message: text });
+			});
+		}
 	} else {
 		cb({ message: "Sorry I didn't quite get that, could you ask something different"});
 	}
@@ -158,6 +198,15 @@ function capOneBill(cb) { //get all of a customer's bill based on a customer's I
 
 function capOneLocations(cb) { //get location of capital one offices
 	request('http://api.reimaginebanking.com/branches?key=' + CAPONE_KEY, function (error, response, body) {
+	  if (!error && response.statusCode == 200) { 
+	    console.log(JSON.parse(body));
+	    cb(JSON.parse(body));
+	  }
+	})
+}
+
+function getPlaidInfo(cb) {
+	request.post('https://tartan.plaid.com/connect?client_id=55eb144bf1b303e8243a3fdc&secret=7f170be3c42b4200dea017c4c36d71&username=plaid_test&password=plaid_good&type=wells', function (error, response, body) {
 	  if (!error && response.statusCode == 200) { 
 	    console.log(JSON.parse(body));
 	    cb(JSON.parse(body));
