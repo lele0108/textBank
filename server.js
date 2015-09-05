@@ -67,14 +67,30 @@ function computeText(witRes, cb) {
 		}
 		else if (witRes.outcomes[0].intent == "checking_balance") {
 			var text = "Thanks for waiting. ";
-			capOneGetAccounts(function(res) {
-				console.log(res);
-				for (i = 0; i < res.length; i++) {
-					console.log("YESMAN");
-					text = text + "You have $" + res[i].balance.toString().substring(0, res[i].balance.toString().length - 2) + "." +  + res[i].balance.toString().substring(res[i].balance.toString().length - 2, res[i].balance.toString().length) + " in your " + res[i].type + " account. ";
-				}
-				cb({ message: text});
-			});
+			if (witRes._text.toLowerCase().indexOf("checking") > -1 || witRes._text.toLowerCase().indexOf("savings") > -1) {
+				capOneGetAccounts(function(res) {
+					var query = "";
+					if (witRes._text.toLowerCase().indexOf("checking") > -1) {
+						query = "Checking";
+					} else if (witRes._text.toLowerCase().indexOf("savings") > -1) {
+						query = "Savings"
+					}
+					for (i = 0; i < res.length; i++) {
+						if (res[i].type == query) {
+							text = text + "You have $" + res[i].balance.toString().substring(0, res[i].balance.toString().length - 2) + "." +  + res[i].balance.toString().substring(res[i].balance.toString().length - 2, res[i].balance.toString().length) + " in your " + res[i].type + " account. ";
+						}
+					}
+					cb({ message: text});
+				});
+			} else {
+				capOneGetAccounts(function(res) {
+					console.log(res);
+					for (i = 0; i < res.length; i++) {
+						text = text + "You have $" + res[i].balance.toString().substring(0, res[i].balance.toString().length - 2) + "." +  + res[i].balance.toString().substring(res[i].balance.toString().length - 2, res[i].balance.toString().length) + " in your " + res[i].type + " account. ";
+					}
+					cb({ message: text});
+				});
+			}
 		}
 	} else {
 		cb({ message: "Sorry I didn't quite get that, could you ask something different"});
