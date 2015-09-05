@@ -55,7 +55,7 @@ router.route('/speech')
 
 router.route('/test') 
 	.get(function(req, res) {
-		capOneBill(function(response) {
+		capOneLocations(function(response) {
 			res.json(response);
 		});
 	});
@@ -90,6 +90,38 @@ function computeText(witRes, cb) {
 					}
 					cb({ message: text});
 				});
+			}
+		}
+		else if (witRes.outcomes[0].intent == "bill_query") {
+			var text = "Thanks for waiting. Your bills are as follows: "
+			capOneBill(function(response) {
+				console.log(response);
+				for (i = 0; i < response.length; i++) {
+					if (response[i].status == "recurring") {
+						text = text + response[i].payee + " is recurring on the " + response[i].recurring_date + "rd of every month for $" + response[i].payment_amount + ". "; 
+					}
+				}
+				cb({ message: text});
+			});
+		}
+		else if (witRes.outcomes[0].intent == "bank_location") {
+			var text = "";
+			if (witRes.outcomes[0].entities.location) {
+				var location = witRes.outcomes[0].entities.location[0].value;
+				capOneLocations(function(res) {
+					for (i = 0; i < res.length; i++) {
+						var branch = res[i];
+						if (branch.address.city.toLowerCase() == location.toLowerCase()) {
+							text = "I found a branch near you. It's located on " + branch.street_number + " " + branch.street_name + " and is open from 9 AM - 5 PM today. Here's a map with directions: ";
+							cb({ message: text, 'lat': branch.geocode.lat, 'lng': branch.geocode.lng});
+						}
+					}
+					text = "Hmm, there doesn't seem to be a Capital One branch in your city. Sorry about that!";
+					cb({ message: text});
+				});
+			} else {
+				text = "What city are you located? I live on the internet!";
+				cb({ message: text});
 			}
 		}
 	} else {
