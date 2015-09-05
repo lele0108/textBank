@@ -10,6 +10,7 @@ var bodyParser = require('body-parser');
 var wit = require('node-wit');
 var ACCESS_TOKEN = "IBENYNTQT2C36HSUMM6Q5EGBPSJ7EUUU";
 var CAPONE_KEY = "5299a04263d592b885593d6d6d21aafc";
+var CAPONE_CUSTOMER = "55e94a6af8d8770528e60e54";
 var request = require('request');
 
 // configure app to use bodyParser()
@@ -54,7 +55,7 @@ router.route('/speech')
 
 router.route('/test') 
 	.get(function(req, res) {
-		capOneBalance("55e94a6bf8d8770528e6144e", function(response) {
+		capOneBill(function(response) {
 			res.json(response);
 		});
 	});
@@ -69,19 +70,37 @@ function computeText(witRes, cb) {
 	}
 }
 
-function capOneGetAccounts(cb) {
-	request('http://api.reimaginebanking.com/accounts?key=' + CAPONE_KEY, function (error, response, body) {
+function capOneGetAccounts(cb) { //get all of customer's account based on customer ID
+	request('http://api.reimaginebanking.com/customers/' + CAPONE_CUSTOMER + '/accounts?key=' + CAPONE_KEY, function (error, response, body) {
 	  if (!error && response.statusCode == 200) { 
-	    console.log(JSON.parse(body)); // Show the HTML for the Google homepage. 
+	    console.log(JSON.parse(body));
 	    cb(JSON.parse(body));
 	  }
 	})
 }
 
-function capOneBalance(account, cb) {
+function capOneBalance(account, cb) { //pass account ID to get balance
 	request('http://api.reimaginebanking.com/accounts/' + account + '?key=' + CAPONE_KEY, function (error, response, body) {
 	  if (!error && response.statusCode == 200) { 
-	    console.log(JSON.parse(body)); // Show the HTML for the Google homepage. 
+	    console.log(JSON.parse(body));
+	    cb(JSON.parse(body));
+	  }
+	})
+}
+
+function capOneBill(cb) { //get all of a customer's bill based on a customer's ID
+	request('http://api.reimaginebanking.com/customers/' + CAPONE_CUSTOMER + '/bills?key=' + CAPONE_KEY, function (error, response, body) {
+	  if (!error && response.statusCode == 200) { 
+	    console.log(JSON.parse(body));
+	    cb(JSON.parse(body));
+	  }
+	})
+}
+
+function capOneLocations(cb) { //get location of capital one offices
+	request('http://api.reimaginebanking.com/branches?key=' + CAPONE_KEY, function (error, response, body) {
+	  if (!error && response.statusCode == 200) { 
+	    console.log(JSON.parse(body));
 	    cb(JSON.parse(body));
 	  }
 	})
