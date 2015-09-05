@@ -45,6 +45,12 @@ router.get('/', function(req, res) {
 
 router.route('/speech')
 	.post(function(req, res) {
+		var SMS = false;
+		if (req.body.ToCountry) {
+			console.log(req.body);
+			SMS = true;
+			req.body.text = req.body.Body;
+		}
 		console.log(req.body.text);
 		wit.captureTextIntent(ACCESS_TOKEN, req.body.text, function (err, witRes) {
 		    if (err) {
@@ -54,7 +60,11 @@ router.route('/speech')
 		    	console.log(JSON.stringify(witRes, null, " "));
 		    	computeText(witRes, function(response) {
 				    console.log(response); 
-				    res.json(response);   
+				    if (!SMS) {
+				    	res.json(response);  
+				    } else {
+				    	res.send('<?xml version="1.0" encoding="UTF-8" ?><Response><Message>' + response.message + '</Message></Response>'); 
+				    }
 				});
 		    }
 		});
@@ -119,7 +129,7 @@ function computeText(witRes, cb) {
 					for (i = 0; i < res.length; i++) {
 						var branch = res[i];
 						if (branch.address.city.toLowerCase() == location.toLowerCase()) {
-							text = "I found a branch near you. It's located on " + branch.street_number + " " + branch.street_name + " and is open from 9 AM - 5 PM today. Here's a map with directions: ";
+							text = "I found a branch near you. It's located on " + branch.address.street_number + " " + branch.address.street_name + " and is open from 9 AM - 5 PM today. Here's a map with directions: ";
 							cb({ message: text, 'lat': branch.geocode.lat, 'lng': branch.geocode.lng});
 						}
 					}
