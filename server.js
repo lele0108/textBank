@@ -147,6 +147,23 @@ function computeText(witRes, cb) {
 				cb({ message: text});
 			}
 		}
+		else if (witRes.outcomes[0].intent == "atm_search") {
+			var text = "";
+			if(witRes.outcomes[0].entities.location) {
+				var location = witRes.outcomes[0].entities.location[0].value;
+				getCoordinatesForCity(location, function(res) {
+					capOneATMLocations(res.lat, res.lng, function(res) {
+						console.log(res);
+						if (res.data && res.data.length > 0) {
+							var atm = res.data[0];
+							text = "I found an ATM near you 🏦. It's located on " + atm.address.street_number + " " + atm.address.street_name + " and is open 24 hours a day. Here's a map with directions: ";
+							cb({ message: text, 'lat': atm.geocode.lat, 'lng': atm.geocode.lng});
+						}
+						cb({ message: "We could not find an ATM near you. Sorry!"});
+					});
+				});
+			}
+		}
 		else if (witRes.outcomes[0].intent == "expense_query") {
 			var text = "Thanks for waiting!";
 			var intent = "";
@@ -244,6 +261,18 @@ function capOneLocations(cb) { //get location of capital one offices
 	})
 }
 
+function capOneATMLocations(lat, lng, cb) { //get location of capital one ATMs
+	console.log('coordinates lat'+lat+'lng'+lng);
+	//http://api.reimaginebanking.com/atms?lat=38.9283&lng=-77.1753&rad=1&key=5299a04263d592b885593d6d6d21aafc
+	console.log('lat '+lat+'lng '+lng);
+	request('http://api.reimaginebanking.com/atms?lat='+lat+'&lng='+lng+'&rad=100&key=5299a04263d592b885593d6d6d21aafc', function (error, response, body) {
+	  if (!error && response.statusCode == 200) { 
+	    console.log(body);
+	    cb(JSON.parse(body));
+	  }
+	})
+}
+
 function getPlaidInfo(cb) {
 	request.post('https://tartan.plaid.com/connect?client_id=55eb144bf1b303e8243a3fdc&secret=7f170be3c42b4200dea017c4c36d71&username=plaid_test&password=plaid_good&type=wells', function (error, response, body) {
 	  if (!error && response.statusCode == 200) { 
@@ -253,6 +282,15 @@ function getPlaidInfo(cb) {
 	})
 }
 
+function getCoordinatesForCity(city, cb) { //get coordinates for name of city
+	request('https://maps.googleapis.com/maps/api/geocode/json?address='+city+'&key=AIzaSyAkRHU_j2otQI__f5WOf3PfZpa4PWdrnUk', function (error, response, body) {
+		if(!error && response.statusCode == 200) {
+			var loc = JSON.parse(body);
+			console.log(loc.results[0].geometry.location);
+			cb(loc.results[0].geometry.location);
+		}
+	})
+}
 // more routes for our API will happen here
 
 // REGISTER OUR ROUTES -------------------------------
