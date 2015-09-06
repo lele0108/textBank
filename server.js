@@ -183,7 +183,7 @@ function computeText(witRes, cb) {
 					total = total + transactions[i].amount;
 				}
 				text = text + " You have spent a total of $" + total + " this month on " + transactions.length + " different purchases. 💳";
-			}
+			});
 		}
 	} else {
 		cb({ message: "Sorry I didn't quite get that, could you ask something different"});
