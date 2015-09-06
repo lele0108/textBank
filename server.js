@@ -79,7 +79,10 @@ router.route('/test')
 
 function computeText(witRes, cb) {
 	if (witRes.outcomes) {
-		if (witRes.outcomes[0].intent == "greetings") {
+		if (witRes.outcomes[0].confidence < 0.5) {
+			cb({ message: "That's weird, not quite sure what you meant there 😟."})
+		}
+		else if (witRes.outcomes[0].intent == "greetings") {
 			cb({ message: "Hello, what can I help you with? 😃" });
 		}
 		else if (witRes.outcomes[0].intent == "checking_balance") {
