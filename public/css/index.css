@@ -1,0 +1,42 @@
+body { 
+  background: url('../img/stars.jpg') no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+.header {
+	margin-top:75px;
+}
+
+.header h1 {
+	color:white;
+	font-size:30px;
+	font-weight:300;
+}
+
+.header h1 b {
+	font-weight:500;
+}
+
+.header h2 {
+	color:white;
+	font-weight:500;
+	font-size:35px;
+	text-shadow: 0px 3px 20px rgba(255, 255, 255, 1);
+}
+
+.header h3 {
+	color:white;
+	font-size:18px;
+	font-weight:300;
+}
+
+.screenshots {
+	margin-top:100px;
+}
+
+.screenshots img {
+	margin-right:35px;
+}

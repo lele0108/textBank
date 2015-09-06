@@ -296,6 +296,7 @@ function getCoordinatesForCity(city, cb) { //get coordinates for name of city
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will be prefixed with /api
 app.use('/api', router);
+app.use(express.static('public'));
 
 // START THE SERVER
 // =============================================================================
