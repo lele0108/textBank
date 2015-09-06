@@ -84,14 +84,22 @@ function computeText(witRes, cb) {
 			if (rand >= 0 && rand <=3)
 				cb({ message: "That's weird, not quite sure what you meant there 😟."})
 			else if (rand >= 4 && rand <=6)
-				cb({ message: "Hey, could you phrase that differently? I wasn't sure what you were saying 😟."})
+				cb({ message: "Hey, could you phrase that differently? I wasn't sure what you were saying 😟."});
 			else if (rand >=7 && rand <=10)
-				cb({ message: "Sorry I don't think I can help you with that. Try again? 😟."})
+				cb({ message: "Sorry I don't think I can help you with that. Try again? 😟."});
 			else
-				cb({ message: "Hey, could you phrase that differently? I wasn't sure what you were saying 😟."})
+				cb({ message: "Hey, could you phrase that differently? I wasn't sure what you were saying 😟."});
 		}
 		else if (witRes.outcomes[0].intent == "thanks") {
-			cb({ message: "No problem, happy to help 🙋. Have a nice day! "})
+			var rand = Math.floor((Math.random()*10));
+			if (rand >= 0 && rand <=3)
+				cb({ message: "No problem, happy to help 🙋. Have a nice day! "})
+			else if (rand >= 4 && rand <=6)
+				cb({ message: "Your Welcome 🙋! Anything else I can do today?"});
+			else if (rand >= 7 && rand <=10)
+				cb({ message: "Glad I could be of use. 🙋. Talk to you soon! "});
+			else 
+				cb({ message: "No problem, happy to help 🙋. Have a nice day! "});
 		}
 		else if (witRes.outcomes[0].intent == "greetings") {
 			var rand = Math.floor((Math.random()*10));
@@ -132,7 +140,7 @@ function computeText(witRes, cb) {
 			}
 		}
 		else if (witRes.outcomes[0].intent == "bill_query") {
-			var text = "Thanks for waiting. Your bills are as follows: "
+			var text = "Just looked up your bills for you. They are as follows: "
 			capOneBill(function(response) {
 				console.log(response);
 				for (i = 0; i < response.length; i++) {
