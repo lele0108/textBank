@@ -80,7 +80,7 @@ router.route('/test')
 function computeText(witRes, cb) {
 	if (witRes.outcomes) {
 		if (witRes.outcomes[0].intent == "greetings") {
-			cb({ message: "Hello, what can I help you with?" });
+			cb({ message: "Hello, what can I help you with? 😃" });
 		}
 		else if (witRes.outcomes[0].intent == "checking_balance") {
 			var text = "Thanks for waiting. ";
@@ -94,7 +94,7 @@ function computeText(witRes, cb) {
 					}
 					for (i = 0; i < res.length; i++) {
 						if (res[i].type == query) {
-							text = text + "You have $" + res[i].balance.toString().substring(0, res[i].balance.toString().length - 2) + "." +  + res[i].balance.toString().substring(res[i].balance.toString().length - 2, res[i].balance.toString().length) + " in your " + res[i].type + " account. ";
+							text = text + "You have $" + res[i].balance.toString().substring(0, res[i].balance.toString().length - 2) + "." +  + res[i].balance.toString().substring(res[i].balance.toString().length - 2, res[i].balance.toString().length) + "💸 in your " + res[i].type + " account.";
 						}
 					}
 					cb({ message: text});
@@ -103,7 +103,7 @@ function computeText(witRes, cb) {
 				capOneGetAccounts(function(res) {
 					console.log(res);
 					for (i = 0; i < res.length; i++) {
-						text = text + "You have $" + res[i].balance.toString().substring(0, res[i].balance.toString().length - 2) + "." +  + res[i].balance.toString().substring(res[i].balance.toString().length - 2, res[i].balance.toString().length) + " in your " + res[i].type + " account. ";
+						text = text + "You have $" + res[i].balance.toString().substring(0, res[i].balance.toString().length - 2) + "." +  + res[i].balance.toString().substring(res[i].balance.toString().length - 2, res[i].balance.toString().length) + "💸 in your " + res[i].type + " account. ";
 					}
 					cb({ message: text});
 				});
@@ -115,7 +115,7 @@ function computeText(witRes, cb) {
 				console.log(response);
 				for (i = 0; i < response.length; i++) {
 					if (response[i].status == "recurring") {
-						text = text + response[i].payee + " is recurring on the " + response[i].recurring_date + "rd of every month for $" + response[i].payment_amount + ". "; 
+						text = text + response[i].payee + " is recurring on the " + response[i].recurring_date + "rd of every month for $" + response[i].payment_amount + "💵. "; 
 					}
 				}
 				cb({ message: text});
@@ -129,15 +129,15 @@ function computeText(witRes, cb) {
 					for (i = 0; i < res.length; i++) {
 						var branch = res[i];
 						if (branch.address.city.toLowerCase() == location.toLowerCase()) {
-							text = "I found a branch near you. It's located on " + branch.address.street_number + " " + branch.address.street_name + " and is open from 9 AM - 5 PM today. Here's a map with directions: ";
+							text = "I found a branch near you🏦. It's located on " + branch.address.street_number + " " + branch.address.street_name + " and is open from 9 AM - 5 PM today. Here's a map with directions: ";
 							cb({ message: text, 'lat': branch.geocode.lat, 'lng': branch.geocode.lng});
 						}
 					}
-					text = "Hmm, there doesn't seem to be a Capital One branch in your city. Sorry about that!";
+					text = "Hmm, there doesn't seem to be a Capital One branch in your city. Sorry about that! 😶";
 					cb({ message: text});
 				});
 			} else {
-				text = "What city are you located? I live on the internet!";
+				text = "What city are you located?📍 I live on the internet!";
 				cb({ message: text});
 			}
 		}
@@ -169,10 +169,21 @@ function computeText(witRes, cb) {
 				text = text + " I've found " + match.length + " recent transactions."
 				for(j = 0; j < match.length; j++) {
 					var d = new Date(match[j].date);
-					text = text + " You spent $" + match[j].amount + " at " + match[j].name + " on " + monthNames[d.getMonth()] + " " + d.getDate() + ".";
+					text = text + " You spent 💰$" + match[j].amount + " at " + match[j].name + " on " + monthNames[d.getMonth()] + " " + d.getDate() + ".";
 				}
 				cb({ message: text });
 			});
+		}
+		else if (witRes.outcomes[0].intent == "expense_query") {
+			var text = "Thanks for waiting!";
+			var total = 0;
+			getPlaidInfo(function(res) {
+				var transactions = res.transactions;
+				for (i = 0; i < transactions.length; i++) {
+					total = total + transactions[i].amount;
+				}
+				text = text + " You have spent a total of $" + total + " this month on " + transactions.length + " different purchases. 💳"
+			}
 		}
 	} else {
 		cb({ message: "Sorry I didn't quite get that, could you ask something different"});
