@@ -54,7 +54,7 @@ router.route('/speech')
 		console.log(req.body.text);
 		wit.captureTextIntent(ACCESS_TOKEN, req.body.text, function (err, witRes) {
 		    if (err) {
-		    	res.json(400, {message: "Error calling Wit.ai"});
+		    	res.json(400, {message: "Woah. I think I just encountered an error. Try again?"});
 		    	console.log("Error: ", err);
 		    } else { 	
 		    	console.log(JSON.stringify(witRes, null, " "));
@@ -80,16 +80,32 @@ router.route('/test')
 function computeText(witRes, cb) {
 	if (witRes.outcomes) {
 		if (witRes.outcomes[0].confidence < 0.5) {
-			cb({ message: "That's weird, not quite sure what you meant there 😟."})
+			var rand = Math.floor((Math.random()*10));
+			if (rand >= 0 && rand <=3)
+				cb({ message: "That's weird, not quite sure what you meant there 😟."})
+			else if (rand >= 4 && rand <=6)
+				cb({ message: "Hey, could you phrase that differently? I wasn't sure what you were saying 😟."})
+			else if (rand >=7 && rand <=10)
+				cb({ message: "Sorry I don't think I can help you with that. Try again? 😟."})
+			else
+				cb({ message: "Hey, could you phrase that differently? I wasn't sure what you were saying 😟."})
 		}
 		else if (witRes.outcomes[0].intent == "thanks") {
 			cb({ message: "No problem, happy to help 🙋. Have a nice day! "})
 		}
 		else if (witRes.outcomes[0].intent == "greetings") {
-			cb({ message: "Hello, what can I help you with? 😃" });
+			var rand = Math.floor((Math.random()*10));
+			if (rand >= 0 && rand <=3)
+				cb({ message: "Hello, what can I help you with? 😃" });
+			else if (rand >= 4 && rand <=6)
+				cb({ message: "Hi! I'm Pepper. What can I do for you today? 😃" });
+			else if (rand >= 7 && rand <=10)
+				cb({ message: "Hey! Pepper here to help. What's on your mind? 😃" });
+			else
+				cb({ message: "Hey! Pepper here to help. What's on your mind? 😃" });
 		}
 		else if (witRes.outcomes[0].intent == "checking_balance") {
-			var text = "Thanks for waiting. ";
+			var text = "I fetched information about your balance. ";
 			if (witRes._text.toLowerCase().indexOf("checking") > -1 || witRes._text.toLowerCase().indexOf("savings") > -1) {
 				capOneGetAccounts(function(res) {
 					var query = "";
@@ -165,7 +181,7 @@ function computeText(witRes, cb) {
 			}
 		}
 		else if (witRes.outcomes[0].intent == "expense_query") {
-			var text = "Thanks for waiting!";
+			var text = "I found it!";
 			var intent = "";
 			var query = witRes._text.toLowerCase();
 			if (query.indexOf("food") > -1) {
@@ -203,7 +219,7 @@ function computeText(witRes, cb) {
 			});
 		}
 		else if (witRes.outcomes[0].intent == "spending_check") {
-			var text = "Thanks for waiting!";
+			var text = "I added that up for you.";
 			var total = 0;
 			getPlaidInfo(function(res) {
 				var transactions = res.transactions;
