@@ -174,16 +174,23 @@ function computeText(witRes, cb) {
 				cb({ message: text });
 			});
 		}
-		else if (witRes.outcomes[0].intent == "expense_query") {
+		else if (witRes.outcomes[0].intent == "spending_check") {
 			var text = "Thanks for waiting!";
 			var total = 0;
 			getPlaidInfo(function(res) {
 				var transactions = res.transactions;
 				for (i = 0; i < transactions.length; i++) {
-					total = total + transactions[i].amount;
+					console.log(transactions[i]);
+					if (transactions[i].amount && transactions[i].amount > 0) {
+						total = total + transactions[i].amount;
+					}
 				}
-				text = text + " You have spent a total of $" + total + " this month on " + transactions.length + " different purchases. 💳";
+				text = text + " You have spent a total of $" + total.toFixed(2) + " this month on " + transactions.length + " different purchases 💳.";
+				cb({ message: text });
 			});
+		}
+		else {
+			cb({ message: "Sorry I didn't quite get that, could you ask something different"});
 		}
 	} else {
 		cb({ message: "Sorry I didn't quite get that, could you ask something different"});
