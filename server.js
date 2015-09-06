@@ -82,6 +82,9 @@ function computeText(witRes, cb) {
 		if (witRes.outcomes[0].confidence < 0.5) {
 			cb({ message: "That's weird, not quite sure what you meant there 😟."})
 		}
+		else if (witRes.outcomes[0].intent == "thanks") {
+			cb({ message: "No problem, happy to help 🙋. Have a nice day! "})
+		}
 		else if (witRes.outcomes[0].intent == "greetings") {
 			cb({ message: "Hello, what can I help you with? 😃" });
 		}
@@ -158,6 +161,11 @@ function computeText(witRes, cb) {
 				intent = "Computers and Electronics";
 			}
 			getPlaidInfo(function(res) {
+				if (intent == "") {
+					var d = new Date(res.transactions[0].date);
+					text = text + " Your last transaction was made at " + res.transactions[0].name + " in " + res.transactions[0].meta.location.city + " on " + monthNames[d.getMonth()] + " " + d.getDate() + " for $" + res.transactions[0].amount + ".";
+					cb({ message: text });
+				}
 				var match = [];
 				var transactions = res.transactions;
 				for (i = 0; i < transactions.length; i++) {
